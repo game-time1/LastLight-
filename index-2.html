@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LastLight</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body { margin: 0; }
+img { max-width: 100%; }
+
+/* Layout: one dark column. The only warm light on the page is the torch; everything else is sculk teal on near-black. */
+:root {
+  --void: #04090a;
+  --deep: #081315;
+  --sculk: #0d2527;
+  --edge: #17484a;
+  --teal: #33e1d1;
+  --teal-dim: #1a9a93;
+  --ember: #ffb347;
+  --ember-deep: #ff7a1a;
+  --text: #cfe8e5;
+  --mute: #86aaa6;
+  --font-display: 'Pixelify Sans', 'Courier New', monospace;
+  --font-body: 'Onest', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--void);
+  background-image:
+    radial-gradient(ellipse 60% 440px at 80% 140px, rgba(255, 150, 50, 0.2), transparent 70%),
+    radial-gradient(ellipse 70% 420px at 0% 100%, rgba(51, 225, 209, 0.07), transparent 70%),
+    radial-gradient(rgba(51, 225, 209, 0.1) 1px, transparent 1.6px);
+  background-size: auto, auto, 28px 28px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+section { padding-block: 56px; }
+section + section { position: relative; }
+section + section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--edge) 0 12px, transparent 12px 20px, var(--teal-dim) 20px 24px, transparent 24px 40px);
+  opacity: 0.75;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+  text-wrap: balance;
+}
+h2 { font-size: clamp(1.8rem, 5vw, 2.4rem); color: var(--teal); }
+h3 { font-size: 1.4rem; color: var(--text); }
+p { margin: 0; }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+/* Hero */
+.hero { padding-block: 48px 56px; overflow-x: clip; }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+}
+.hero-text { min-width: 0; display: grid; gap: 20px; justify-items: start; }
+.hero h1 {
+  font-size: clamp(3.2rem, 14vw, 6rem);
+  color: var(--text);
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 34px rgba(51, 225, 209, 0.22);
+}
+.hero h1 span { color: var(--teal); text-shadow: 0 0 26px rgba(51, 225, 209, 0.6); }
+.lede { max-width: 34ch; font-size: 1.15rem; color: var(--text); }
+.lede em { font-style: normal; color: var(--ember); }
+
+.torch-wrap { position: relative; display: grid; place-items: center; padding: 8px 24px; }
+.torch-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -90px;
+  background: radial-gradient(ellipse closest-side at 50% 30%, rgba(255, 170, 60, 0.4), rgba(255, 150, 50, 0.14) 55%, transparent 100%);
+  pointer-events: none;
+  animation: pulse 2.6s ease-in-out infinite;
+}
+.ember {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  width: 5px;
+  height: 5px;
+  margin-left: var(--x);
+  background: var(--ember);
+  opacity: 0;
+  animation: rise 3.2s steps(16) infinite;
+  animation-delay: var(--d);
+}
+@keyframes rise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(var(--dx), -130px); opacity: 0; }
+}
+.torch {
+  position: relative;
+  width: 132px;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 0 14px rgba(255, 140, 40, 0.65));
+}
+.flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flick 1.2s steps(4) infinite; }
+@keyframes flick {
+  0%, 100% { transform: scale(1, 1); }
+  30% { transform: scale(0.92, 1.07); }
+  60% { transform: scale(1.05, 0.95); }
+  80% { transform: scale(0.97, 1.04); }
+}
+@keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+
+/* IP box */
+.ip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  border: 2px solid var(--edge);
+  background: var(--deep);
+  max-width: 100%;
+}
+.ip-text {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 10px 14px;
+  color: var(--teal);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  appearance: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+  color: var(--void);
+  background: var(--teal);
+  border: 0;
+  border-radius: 0;
+  padding: 11px 18px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset -3px -3px 0 var(--teal-dim), inset 3px 3px 0 rgba(255, 255, 255, 0.35);
+}
+.btn:hover { background: #5cf0e2; }
+.btn:active { box-shadow: inset 3px 3px 0 var(--teal-dim); }
+.btn.ghost {
+  color: var(--teal);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--teal-dim);
+}
+.btn.ghost:hover { background: var(--sculk); }
+.btn.small { font-size: 0.9rem; padding: 8px 12px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--ember);
+  outline-offset: 2px;
+}
+
+/* Intro */
+.intro { display: grid; gap: 14px; max-width: 62ch; }
+.intro p { color: var(--text); }
+
+/* Shop */
+.section-head { display: grid; gap: 10px; margin-bottom: 28px; }
+.section-head p { color: var(--mute); max-width: 60ch; }
+
+.grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  background: var(--deep);
+  border: 2px solid var(--edge);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.05), inset -2px -2px 0 rgba(0, 0, 0, 0.5);
+  transition: transform 0.12s steps(2);
+}
+.card:hover { transform: translateY(-3px); }
+.card.is-picked { border-color: var(--teal); background: var(--sculk); box-shadow: 0 0 22px rgba(51, 225, 209, 0.18), inset 2px 2px 0 rgba(255, 255, 255, 0.06), inset -2px -2px 0 rgba(0, 0, 0, 0.5); }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.icon { width: 48px; height: 48px; display: block; }
+.card .tag { color: var(--mute); }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 0.95rem; color: var(--text); }
+.card li { padding-left: 16px; position: relative; }
+.card li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  background: var(--teal-dim);
+}
+.card .spacer { flex: 1; }
+.price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--ember);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pay */
+.pay-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 760px) { .pay-grid { grid-template-columns: 1fr 1fr; } }
+.panel {
+  min-width: 0;
+  padding: 20px;
+  background: var(--deep);
+  border: 2px solid var(--edge);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.05), inset -2px -2px 0 rgba(0, 0, 0, 0.5);
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.field { display: grid; gap: 6px; }
+.field label { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+input[type="text"], select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--void);
+  border: 2px solid var(--edge);
+  border-radius: 0;
+  padding: 10px 12px;
+}
+input[type="text"]::placeholder { color: #4f6f6c; }
+.hint { font-size: 0.85rem; color: var(--mute); }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+  align-items: center;
+  padding-block: 12px;
+  border-top: 1px solid var(--edge);
+}
+.row:first-of-type { border-top: 0; padding-top: 0; }
+.row .k { grid-column: 1 / -1; }
+.row .v { font-family: var(--font-mono); font-weight: 600; color: var(--text); overflow-wrap: anywhere; min-width: 0; }
+.row .v.big { font-family: var(--font-display); font-size: 2.2rem; color: var(--ember); font-variant-numeric: tabular-nums; text-shadow: 0 0 20px rgba(255, 179, 71, 0.4); }
+
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+.steps li::before {
+  content: counter(s);
+  font-family: var(--font-display);
+  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--sculk);
+  color: var(--teal);
+  border: 2px solid var(--edge);
+}
+.steps p { color: var(--text); }
+.steps small { display: block; color: var(--mute); font-size: 0.85rem; }
+
+footer { padding-block: 32px 40px; border-top: 2px dashed var(--edge); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; color: var(--mute); font-size: 0.9rem; }
+
+@media (max-width: 640px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .torch-wrap { order: -1; justify-self: start; padding-left: 8px; }
+  .torch { width: 100px; }
+  section { padding-block: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flame, .torch-wrap::before { animation: none; }
+  .ember { display: none; }
+  .card { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="label">Minecraft-сервер</span>
+        <h1>Last<span>Light</span></h1>
+        <p class="lede">Вокруг тьма и тишина. Свет остаётся у тех, кто <em>держит факел</em> до конца.</p>
+        <div class="ip">
+          <div class="ip-text" id="ip-text">87.228.74.140:25978</div>
+          <button class="btn small" type="button" data-copy="ip-text">Скопировать IP</button>
+        </div>
+        <a class="btn ghost" href="#shop">Поддержать сервер</a>
+      </div>
+      <div class="torch-wrap">
+        <svg class="torch" viewBox="0 0 16 30" shape-rendering="crispEdges" aria-hidden="true">
+          <g class="flame">
+            <g fill="#ff7a1a">
+              <rect x="7" y="0" width="2" height="1"/>
+              <rect x="6" y="1" width="4" height="2"/>
+              <rect x="5" y="3" width="6" height="4"/>
+              <rect x="6" y="7" width="4" height="1"/>
+            </g>
+            <g fill="#ffb347">
+              <rect x="7" y="2" width="2" height="1"/>
+              <rect x="6" y="3" width="4" height="4"/>
+              <rect x="7" y="7" width="2" height="1"/>
+            </g>
+            <g fill="#fff0b0">
+              <rect x="7" y="4" width="2" height="3"/>
+            </g>
+          </g>
+          <rect x="6" y="8" width="4" height="2" fill="#241b19"/>
+          <rect x="6" y="10" width="4" height="20" fill="#7a4e24"/>
+          <rect x="6" y="10" width="1" height="20" fill="#9a6730"/>
+          <rect x="9" y="10" width="1" height="20" fill="#573517"/>
+          <rect x="7" y="13" width="2" height="1" fill="#573517"/>
+          <rect x="7" y="18" width="1" height="1" fill="#9a6730"/>
+          <rect x="8" y="22" width="1" height="2" fill="#573517"/>
+          <rect x="7" y="26" width="2" height="1" fill="#9a6730"/>
+        </svg>
+        <span class="ember" style="--x:-14px;--dx:-10px;--d:0s"></span>
+        <span class="ember" style="--x:6px;--dx:12px;--d:0.5s"></span>
+        <span class="ember" style="--x:-4px;--dx:-4px;--d:1.1s"></span>
+        <span class="ember" style="--x:12px;--dx:6px;--d:1.6s"></span>
+        <span class="ember" style="--x:-10px;--dx:14px;--d:2.1s"></span>
+        <span class="ember" style="--x:2px;--dx:-14px;--d:2.6s"></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="intro">
+        <h2>Зачем нужен донат</h2>
+        <p>LastLight держится на энтузиазме и на вашей поддержке. Донаты идут на работу сервера и его развитие, чтобы свет в нём не гас.</p>
+        <p>Донат добровольный. Всё, что можно купить, помогает играть интереснее и не ломает баланс.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="shop">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Магазин</span>
+        <h2>Что можно получить</h2>
+        <p>Выберите покупку и переходите к оплате. Оплата переводом по СБП.</p>
+      </div>
+      <div class="grid" id="cards"></div>
+    </div>
+  </section>
+
+  <section id="pay">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Оплата по СБП</span>
+        <h2>Как оплатить</h2>
+        <p>Введите ник, и мы подготовим сумму и комментарий для перевода.</p>
+      </div>
+      <div class="pay-grid">
+        <div class="panel">
+          <div class="field">
+            <label for="item">Покупка</label>
+            <select id="item"></select>
+          </div>
+          <div class="field">
+            <label for="nick">Ваш ник в игре</label>
+            <input type="text" id="nick" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Например, Steve_228">
+            <span class="hint">Пишите ник точно так, как он выглядит на сервере.</span>
+          </div>
+          <ol class="steps">
+            <li><div><p>Откройте приложение своего банка и выберите перевод по СБП.</p></div></li>
+            <li><div><p>Переведите сумму по номеру телефона справа.</p><small>В комментарии к переводу укажите текст из блока справа.</small></div></li>
+            <li><div><p>Дождитесь выдачи покупки.</p><small>Администратор проверит перевод и выдаст покупку на сервере.</small></div></li>
+          </ol>
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <span class="label k">Сумма</span>
+            <span class="v big" id="amount">79 ₽</span>
+          </div>
+          <div class="row">
+            <span class="label k">Номер для СБП</span>
+            <span class="v" id="phone">+7 949 460 01 22</span>
+            <button class="btn small ghost" type="button" data-copy="phone">Копировать</button>
+          </div>
+          <div class="row">
+            <span class="label k">Получатель</span>
+            <span class="v" id="who">Климентий М.</span>
+          </div>
+          <div class="row">
+            <span class="label k">Комментарий к переводу</span>
+            <span class="v" id="comment">LastLight · ВАШ_НИК · Смена расы</span>
+            <button class="btn small ghost" type="button" data-copy="comment">Копировать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>LastLight · Minecraft</span>
+    <span>IP: 87.228.74.140:25978</span>
+  </div>
+</footer>
+
+<script>
+/* Реквизиты для перевода. Замените на свои. */
+var SBP = { phone: '+7 949 460 01 22', who: 'Климентий М.' };
+
+var PAL = { t: '#33e1d1', '#': '#1a9a93', e: '#ff7a1a', y: '#ffb347', w: '#fff0b0', o: '#c9812a' };
+var ICONS = {
+  race: ['....t...', '.....t..', 'tttttttt', '.....t..', '....t...', '...y....', '..y.....', 'yyyyyyyy', '..y.....', '...y....'],
+  spark: ['...e....', '..eee...', '.eeyee..', '.eyyye..', '.eywye..', '..eyye..', '..eeee..', '...ee...'],
+  guard: ['########', '#tttttt#', '#tttttt#', '#tt##tt#', '.#tttt#.', '..#tt#..', '...##...'],
+  keeper: ['y..y..y.', 'yy.yy.yy', 'yyyyyyyy', 'yyyyyyyy', 'oooooooo']
+};
+function icon(id) {
+  var rows = ICONS[id], h = rows.length, w = rows[0].length, r = '';
+  rows.forEach(function (row, y) {
+    for (var x = 0; x < w; x++) {
+      var c = row.charAt(x);
+      if (PAL[c]) r += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + PAL[c] + '"/>';
+    }
+  });
+  return '<svg class="icon" viewBox="0 0 ' + w + ' ' + h + '" shape-rendering="crispEdges" aria-hidden="true">' + r + '</svg>';
+}
+
+var ITEMS = [
+  { id: 'race', tag: 'Услуга', name: 'Смена расы', short: 'Смена расы', price: 79,
+    list: ['Смена расы вашего персонажа на сервере'] },
+  { id: 'spark', tag: 'Кит', name: 'Искра', short: 'Кит Искра', price: 149,
+    list: ['64 факела', '32 жареных стейка', 'Железный набор инструментов'] },
+  { id: 'guard', tag: 'Кит', name: 'Страж', short: 'Кит Страж', price: 299,
+    list: ['128 факелов', '64 жареных стейка', 'Алмазная кирка, Прочность III', '8 золотых яблок'] },
+  { id: 'keeper', tag: 'Кит', name: 'Хранитель света', short: 'Кит Хранитель света', price: 499,
+    list: ['256 факелов', 'Железная броня, Защита III', 'Алмазный меч, Острота III', '16 золотых яблок'] }
+];
+
+var $ = function (id) { return document.getElementById(id); };
+var cards = $('cards'), sel = $('item'), nick = $('nick');
+var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+ITEMS.forEach(function (it) {
+  var art = document.createElement('article');
+  art.className = 'card';
+  art.id = 'card-' + it.id;
+  art.innerHTML =
+    '<div class="card-top"><span class="label tag">' + it.tag + '</span>' + icon(it.id) + '</div>' +
+    '<h3>' + it.name + '</h3>' +
+    '<ul>' + it.list.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>' +
+    '<span class="spacer"></span>' +
+    '<span class="price">' + it.price + ' ₽</span>' +
+    '<button class="btn" type="button" data-pick="' + it.id + '">Выбрать</button>';
+  cards.appendChild(art);
+
+  var opt = document.createElement('option');
+  opt.value = it.id;
+  opt.textContent = it.name + ' — ' + it.price + ' ₽';
+  sel.appendChild(opt);
+});
+
+function current() {
+  return ITEMS.filter(function (i) { return i.id === sel.value; })[0] || ITEMS[0];
+}
+
+function update() {
+  var it = current();
+  var n = nick.value.trim() || 'ВАШ_НИК';
+  $('amount').textContent = it.price + ' ₽';
+  $('phone').textContent = SBP.phone;
+  $('who').textContent = SBP.who;
+  $('comment').textContent = 'LastLight · ' + n + ' · ' + it.short;
+  ITEMS.forEach(function (i) {
+    $('card-' + i.id).classList.toggle('is-picked', i.id === it.id);
+  });
+}
+
+cards.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-pick]');
+  if (!b) return;
+  sel.value = b.getAttribute('data-pick');
+  update();
+  $('pay').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+});
+sel.addEventListener('change', update);
+nick.addEventListener('input', update);
+
+function selectText(el) {
+  var r = document.createRange();
+  r.selectNodeContents(el);
+  var s = window.getSelection();
+  s.removeAllRanges();
+  s.addRange(r);
+}
+
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-copy]');
+  if (!b) return;
+  var el = $(b.getAttribute('data-copy'));
+  var old = b.textContent;
+  var done = function () {
+    b.textContent = 'Скопировано';
+    setTimeout(function () { b.textContent = old; }, 1500);
+  };
+  try {
+    navigator.clipboard.writeText(el.textContent.trim()).then(done, function () { selectText(el); });
+  } catch (err) {
+    selectText(el);
+  }
+});
+
+update();
+</script>
+
+</body>
+</html>
